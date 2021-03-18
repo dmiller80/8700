@@ -13,11 +13,10 @@ import os
 def store_to_csv(a_list):
     """The function takes a list of strings and stores it as csv data in the 2019_brfss.csv file"""
     with open('2019_brfss.csv', mode='w', newline='') as brfss_file:
-        brfss_writer = csv.writer(brfss_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+        brfss_writer = csv.writer(brfss_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         # we need to parse--need to extract variables--list passed in should only have data we want
         for row in a_list:
             brfss_writer.writerow(row)
-
     return
 
 
@@ -37,28 +36,33 @@ def read_from_file(file_name, lines_to_read):
     return ne_line
 
 
-def get_yes_no(user_prompt):
-    """The function receives a prompt string and displays the request prompt
-    to the user and then returns True if input not equal to 'n' """
-    result = input(user_prompt + ': ')
-    if result.lower() == 'n':
-        return False
-
-    else:
-        return True
+def write_to_file(the_list):
+    # writes the file with the data from the_list
+    file_name = "2019parsed.csv"
+    with open(file_name, mode='w') as cdc_file:
+        for row in the_list:
+            str_write = str(row) + "\n"
+            cdc_file.write(str_write)
+    return
 
 
 def parse_row(count, row):
-    no_data = 0
+    # Parse the rows we are interested in.  Ignore any row where there
+    # is a space as that indicates no data (there are other no data cast
+    # Note=Could have iterated through a list of cols looking for no data
+    data_found = True
+    holding_list = (str(row[22:26]), row[90], row[111], row[114],
+                    row[116], row[117], row[126], row[207], row[2001])
+    parsed = str(",").join(holding_list)
+    for elem in holding_list:
+        if elem == " ":
+            data_found = False
+            break
     # To Do: Make Easier And Name Each Var Per Code Book
-    if row[90] == " " or row[111] == " " or row[114] == " " or row[116] == " " or row[117] == " " \
-            or row[126] == " " or row[207] == " " or row[2001] == " ": no_data = 1
     # print(count,] "yr\t", row[22:26], "\tSX\t", row[90], "\tBP\t", row[111], "\tCHL\t", row[114], "\tHATTK\t", row[116],
     #       "\tHRDISE\t", row[117], "\tDBTS\t", row[126], "\tBMI\t", row[2001])
-    holding_list = (str(row[22:26]), row[90], row[111], row[114],
-               row[116], row[117], row[126], row[207], row[2001])
-    parsed = str(",").join(holding_list)
-    if no_data == 1: parsed = ""
+    if not data_found:
+        parsed = ""
     return parsed
 
 
@@ -83,13 +87,23 @@ def main():
         for row in the_ne_list:
             parsed = parse_row(icnt, row)
             if len(parsed) != 0:
-                list_of_recs.append(parsed)
-                print(icnt, parsed)
-                icnt += 1
+                if icnt ==1:
+                    list_of_recs[0] = parsed
+                    icnt += 1
+                else:
+
+                    list_of_recs.append(parsed)
+                    # write_to_file(parsed)
+                    print(icnt, parsed)
+                    icnt += 1
+            write_to_file(list_of_recs)
 
     except FileNotFoundError:
         print("BRFSS data not read from file - file not found: ", myfile)
-
+    try:
+        store_to_csv(list_of_recs)
+    except IOError as e:
+        print("Failed to write ", e)
 
 if __name__ == '__main__':
     main()
