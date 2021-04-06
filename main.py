@@ -52,9 +52,9 @@ def parse_row(count, row):
     # Note=Could have iterated through a list of cols looking for no data
     data_found = True
     # Here's the key values (field names from code book):
-    # Year, Sex, High BP, High Cholesterol, Heart Attk, Heart Disease, Diabetes, Smoking, Weight
+    # Year, Sex, High BP, High Cholesterol, Heart Disease, Diabetes, Smoking, Weight, Heart Attk,
     holding_list = (str(row[22:26]), row[90], row[111], row[114],
-                    row[116], row[117], row[126], row[207], row[2001])
+                    row[117], row[126], row[207], row[2001], row[116])
     parsed = str(",").join(holding_list)
     for elem in holding_list:
         if elem == " " or elem == '7' or elem == '9':  # Per code book 7, 9 or blank is 'no data'
@@ -93,7 +93,7 @@ def main():
             if len(parsed) != 0:
                 if icnt == 1:
                     list_of_recs[0] = \
-                        "Year,Sex,High BP,High Cholesterol,Heart Attk,Heart Disease,Diabetes,Smoking,Weight"
+                        "Year,Sex,HighBP,High Cholesterol,HeartDisease,Diabetes,Smoking,Weight,HeartAttk"
                     icnt += 1
                 else:
                     list_of_recs.append(parsed)

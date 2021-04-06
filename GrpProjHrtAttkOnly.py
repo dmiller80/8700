@@ -37,7 +37,7 @@ def read_from_file(file_name):
 
 def write_to_file(the_list):
     # writes the file with the data from the_list
-    file_name = "2019parsed.csv"
+    file_name = "2019_HaOnlyParsed.csv"
     with open(file_name, mode='w') as cdc_file:
         for row in the_list:
             str_write = str(row) + "\n"
@@ -53,7 +53,7 @@ def parse_row(count, row):
     # Here's the key values (field names from code book):
     # Year, Sex, High BP, High Cholesterol, Heart Attk, Heart Disease, Diabetes, Smoking, Weight
     holding_list = (str(row[22:26]), row[90], row[111], row[114],
-                    row[116], row[117], row[126], row[207], row[2001])
+                     row[117], row[126], row[207], row[2001], row[116])
     parsed = str(",").join(holding_list)
     for elem in holding_list:
         if elem == " " or elem == '7' or elem == '9':  # Per code book 7, 9 or blank is 'no data'
