@@ -12,7 +12,7 @@ import os
 
 def store_to_csv(a_list):
     """The function takes a list of strings and stores it as csv data in the 2019_brfss.csv file"""
-    with open('2019_brfss.csv', mode='w', newline='') as brfss_file:
+    with open('2019_brfss_HaOnly.csv', mode='w', newline='') as brfss_file:
         brfss_writer = csv.writer(brfss_file, delimiter=' ', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         # we need to parse--need to extract variables--list passed in should only have data we want
         for row in a_list:
@@ -20,7 +20,7 @@ def store_to_csv(a_list):
     return
 
 
-def read_from_file(file_name, lines_to_read):
+def read_from_file(file_name):
     """Reads the file provided as file_name, and returns a list of strings
     Only data for NE will be returned"""
     ne_line = []
@@ -28,11 +28,10 @@ def read_from_file(file_name, lines_to_read):
         cdc_lines = cdc_file.readlines()
         line_count = 0
         for cdc_line in cdc_lines:
-            if cdc_line[:2] == '31':  # Note-31 NE state code
+            # Note-31 NE state code and  col 116 == 1 is hrt attk
+            if cdc_line[:2] == '31' and cdc_line[116] == '1':
                 ne_line.append(cdc_line)
                 line_count += 1
-                if line_count >= lines_to_read:  # There are over 15,800 records for the 2019
-                    break  # want to stop reading the rest of the file once we have our data
     return ne_line
 
 
@@ -84,8 +83,8 @@ def main():
     print("Retrieving data from: ", myfile)
 
     try:
-        num_recs = 7700
-        the_ne_list = read_from_file(myfile, num_recs)  # returns records from state=NE
+        # This will only read rows that in NE AND have Heart Attack True
+        the_ne_list = read_from_file(myfile)  # returns records from state=NE
         icnt = 1
         list_of_recs = [[]]
         for row in the_ne_list:
